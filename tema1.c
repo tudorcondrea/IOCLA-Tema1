@@ -4,21 +4,22 @@
 
 typedef struct Dir {
 	char *name;   // numele directorului
-	struct Dir* parent;  // pointer catre parintele directorului(null pentru radacina)
-	struct File* head_children_files;  // pointer catre primul element de tip File din interiorul directorului
-	struct Dir* head_children_dirs; // pointer catre primul element de tip Dir din interiorul directorului
-	struct Dir* next; // pointer catre urmatorul element din lista in care se afla directorul
-}Dir; // structura de tip director
- 
+	struct Dir *parent;  // pointer catre parintele directorului(null pentru radacina)
+	struct File *head_children_files;  // pointer catre primul element de tip File din interiorul directorului
+	struct Dir *head_children_dirs; // pointer catre primul element de tip Dir din interiorul directorului
+	struct Dir *next; // pointer catre urmatorul element din lista in care se afla directorul
+} Dir; // structura de tip director
+
 typedef struct File {
 	char *name;  // numele fisierului
-	struct Dir* parent; // pointer catre directorul pe
-	struct File* next; // pointer catre urmatorul element din lista de fisiere
-}File; // structura de tip fisier
+	struct Dir *parent; // pointer catre directorul pe
+	struct File *next; // pointer catre urmatorul element din lista de fisiere
+} File; // structura de tip fisier
 
-Dir* init_dir(Dir* parent, char name[])
+Dir *init_dir(Dir *parent, char name[])
 {
-	Dir* newDir = malloc(sizeof(*newDir));
+	Dir *newDir = malloc(sizeof(*newDir));
+
 	newDir->name = malloc(strlen(name) + 1);
 	memcpy(newDir->name, name, strlen(name) + 1);
 	newDir->head_children_dirs = NULL;
@@ -28,9 +29,10 @@ Dir* init_dir(Dir* parent, char name[])
 	return newDir;
 }
 
-File* init_file(Dir* parent, char name[])
+File *init_file(Dir *parent, char name[])
 {
-	File* newFile = malloc(sizeof(*newFile));
+	File *newFile = malloc(sizeof(*newFile));
+
 	newFile->name = malloc(strlen(name) + 1);
 	memcpy(newFile->name, name, strlen(name) + 1);
 	newFile->next = NULL;
@@ -38,13 +40,13 @@ File* init_file(Dir* parent, char name[])
 	return newFile;
 }
 
-void free_file(File* file)
+void free_file(File *file)
 {
 	free(file->name);
 	free(file);
 }
 
-void wipe_files(File* file)
+void wipe_files(File *file)
 {
 	if (!file)
 		return;
@@ -53,14 +55,16 @@ void wipe_files(File* file)
 	free_file(file);
 }
 
-void free_dir(Dir* directory)
+void free_dir(Dir *directory)
 {
 	if (!directory)
 		return;
-	Dir* q = directory->head_children_dirs;
+	Dir *q = directory->head_children_dirs;
+
 	while (q)
 	{
-		Dir* p = q;
+		Dir *p = q;
+
 		q = q->next;
 		free_dir(p);
 	}
@@ -69,13 +73,14 @@ void free_dir(Dir* directory)
 	free(directory);
 }
 
-void touch (Dir* parent, char* name)
+void touch(Dir *parent, char *name)
 {
 	if (parent->head_children_files == NULL)
 		parent->head_children_files = init_file(parent, name);
 	else
 	{
-		File* q = parent->head_children_files;
+		File *q = parent->head_children_files;
+
 		if (strcmp(q->name, name) == 0)
 		{
 			printf("File already exists\n");
@@ -94,21 +99,22 @@ void touch (Dir* parent, char* name)
 	}
 }
 
-void mkdir (Dir* parent, char* name)
+void mkdir(Dir *parent, char *name)
 {
 	if (parent->head_children_dirs == NULL)
 		parent->head_children_dirs = init_dir(parent, name);
 	else
 	{
-		Dir* q = parent->head_children_dirs;
-		if(strcmp(q->name, name) == 0)
+		Dir *q = parent->head_children_dirs;
+
+		if (strcmp(q->name, name) == 0)
 		{
 			printf("Directory already exists\n");
 			return;
 		}
 		while (q->next != NULL)
 		{
-			if(strcmp(q->name, name) == 0)
+			if (strcmp(q->name, name) == 0)
 			{
 				printf("Directory already exists\n");
 				return;
@@ -119,36 +125,36 @@ void mkdir (Dir* parent, char* name)
 	}
 }
 
-void ls (Dir* parent)
+void ls(Dir *parent)
 {
 	if (!parent)
 		return;
-	for (Dir* iter = parent->head_children_dirs; iter != NULL; iter = iter->next)
+	for (Dir *iter = parent->head_children_dirs; iter != NULL; iter = iter->next)
 		printf("%s\n", iter->name);
-	for (File* iter = parent->head_children_files; iter != NULL; iter = iter->next)
+	for (File *iter = parent->head_children_files; iter != NULL; iter = iter->next)
 		printf("%s\n", iter->name);
 }
 
-void rm (Dir* parent, char* name)
+void rm(Dir *parent, char *name)
 {
-	File* q = parent->head_children_files;
+	File *q = parent->head_children_files;
+
 	if (q == NULL)
 	{
 		printf("Could not find the file\n");
 		return;
-	}
-	else if (strcmp(q->name, name) == 0)
+	} else if (strcmp(q->name, name) == 0)
 	{
 		parent->head_children_files = parent->head_children_files->next;
 		free_file(q);
 		return;
-	}
-	else
-		for (File* iter = q; iter->next != NULL; iter = iter->next)
+	} else
+		for (File *iter = q; iter->next != NULL; iter = iter->next)
 		{
 			if (strcmp(iter->next->name, name) == 0)
 			{
-				File* p = iter->next;
+				File *p = iter->next;
+
 				iter->next = iter->next->next;
 				free_file(p);
 				return;
@@ -157,25 +163,25 @@ void rm (Dir* parent, char* name)
 	printf("Could not find the file\n");
 }
 
-void rmdir (Dir* parent, char* name)
+void rmdir(Dir *parent, char *name)
 {
-	Dir* q = parent->head_children_dirs;
+	Dir *q = parent->head_children_dirs;
+
 	if (q == NULL)
 	{
 		printf("Could not find the dir\n");
 		return;
-	}
-	else if (strcmp(q->name, name) == 0)
+	} else if (strcmp(q->name, name) == 0)
 	{
 		parent->head_children_dirs = parent->head_children_dirs->next;
 		free_dir(q);
 		return;
-	}
-	else
-		for (Dir* iter = q; iter->next != NULL; iter = iter->next)
+	} else
+		for (Dir *iter = q; iter->next != NULL; iter = iter->next)
 			if (strcmp(q->next->name, name) == 0)
 			{
-				Dir* p = iter->next;
+				Dir *p = iter->next;
+
 				iter->next = iter->next->next;
 				free_dir(p);
 				return;
@@ -183,16 +189,15 @@ void rmdir (Dir* parent, char* name)
 	printf("Could not find the dir\n");
 }
 
-void cd (Dir** target, char* name)
+void cd(Dir **target, char *name)
 {
 	if (strcmp(name, "..") == 0)
 	{
 		if ((*target)->parent != NULL)
 			*target = (*target)->parent;
 		return;
-	}
-	else
-		for (Dir* iter = (*target)->head_children_dirs; iter != NULL; iter = iter->next)
+	} else
+		for (Dir *iter = (*target)->head_children_dirs; iter != NULL; iter = iter->next)
 			if (strcmp(iter->name, name) == 0)
 			{
 				*target = iter;
@@ -201,16 +206,16 @@ void cd (Dir** target, char* name)
 	printf("No directories found!\n");
 }
 
-void tree (Dir* target, int level)
+void tree(Dir *target, int level)
 {
-	for (Dir* iter = target->head_children_dirs; iter != NULL; iter = iter->next)
+	for (Dir *iter = target->head_children_dirs; iter != NULL; iter = iter->next)
 	{
 		for (int i = 0; i < level; i++)
 			printf("    ");
 		printf("%s\n", iter->name);
 		tree(iter, level + 1);
 	}
-	for (File* iter = target->head_children_files; iter != NULL; iter = iter->next)
+	for (File *iter = target->head_children_files; iter != NULL; iter = iter->next)
 	{
 		for (int i = 0; i < level; i++)
 			printf("    ");
@@ -218,7 +223,7 @@ void tree (Dir* target, int level)
 	}
 }
 
-void reconst_path(Dir* target, char* path)
+void reconst_path(Dir *target, char *path)
 {
 	if (target->parent->parent)
 		reconst_path(target->parent, path);
@@ -226,27 +231,30 @@ void reconst_path(Dir* target, char* path)
 	strcat(path, target->name);
 }
 
-char* pwd (Dir* target)
+char *pwd(Dir *target)
 {
-	char* path = malloc(300);
+	char *path = malloc(300);
+
 	strcpy(path, "/home");
-	Dir* q = target;
+	Dir *q = target;
+
 	if (q->parent == NULL)
 		return path;
 	reconst_path(q, path);
 	return path;
 }
 
-void stop(Dir* target)
+void stop(Dir *target)
 {
 	free_dir(target);
 }
 
-void mv(Dir* parent, char* oldname, char* newname)
+void mv(Dir *parent, char *oldname, char *newname)
 {
-	Dir* q = parent->head_children_dirs;
-	File* p = parent->head_children_files;
+	Dir *q = parent->head_children_dirs;
+	File *p = parent->head_children_files;
 	int found = 0;
+
 	while (q && found == 0)
 	{
 		if (strcmp(q->name, oldname) == 0)
@@ -288,11 +296,12 @@ void mv(Dir* parent, char* oldname, char* newname)
 	p = parent->head_children_files;
 	if (parent->head_children_dirs != NULL)
 	{
-		while(q->next)
+		while (q->next)
 			q = q->next;
 		if (strcmp(parent->head_children_dirs->name, oldname) == 0)
 		{
-			Dir* head = parent->head_children_dirs;
+			Dir *head = parent->head_children_dirs;
+
 			parent->head_children_dirs->name = realloc(parent->head_children_dirs->name, strlen(newname) + 1);
 			memcpy(parent->head_children_dirs->name, newname, strlen(newname) + 1);
 			if (head->next)
@@ -302,9 +311,8 @@ void mv(Dir* parent, char* oldname, char* newname)
 				head->next = NULL;
 			}
 			return;
-		}
-		else
-			for (Dir* iter = parent->head_children_dirs; iter->next != NULL; iter = iter->next)
+		} else
+			for (Dir *iter = parent->head_children_dirs; iter->next != NULL; iter = iter->next)
 				if (strcmp(iter->next->name, oldname) == 0)
 				{
 					q->next = iter->next;
@@ -317,11 +325,12 @@ void mv(Dir* parent, char* oldname, char* newname)
 	}
 	if (parent->head_children_files != NULL)
 	{
-		while(p->next)
+		while (p->next)
 			p = p->next;
 		if (strcmp(parent->head_children_files->name, oldname) == 0)
 		{
-			File* head = parent->head_children_files;
+			File *head = parent->head_children_files;
+
 			parent->head_children_files->name = realloc(parent->head_children_files->name, strlen(newname) + 1);
 			memcpy(parent->head_children_files->name, newname, strlen(newname) + 1);
 			if (head)
@@ -331,10 +340,9 @@ void mv(Dir* parent, char* oldname, char* newname)
 				head->next = NULL;
 			}
 			return;
-		}
-		else
+		} else
 		{
-			for (File* iter = parent->head_children_files; iter->next != NULL; iter = iter->next)
+			for (File *iter = parent->head_children_files; iter->next != NULL; iter = iter->next)
 				if (strcmp(iter->next->name, oldname) == 0)
 				{
 					p->next = iter->next;
@@ -347,20 +355,22 @@ void mv(Dir* parent, char* oldname, char* newname)
 			printf("File/Director not found\n");
 			return;
 		}
-	}
-	else
+	} else
 		printf("File/Director not found\n");
 }
 
 void get_command(char *command[], int *argC)
 {
 	char *input = malloc(300);
+
 	fgets(input, 300, stdin);
 	*argC = 0;
 	char *argV = strtok(input, " ");
+
 	while (argV)
 	{
 		int argLen = strlen(argV);
+
 		if (argV[argLen - 1] == '\n')
 		{
 			argV[argLen - 1] = '\0';
@@ -373,64 +383,55 @@ void get_command(char *command[], int *argC)
 	free(input);
 }
 
-int process_command(char *command[], Dir** target)
+int process_command(char *command[], Dir **target)
 {
 	if (strcmp(command[0], "touch") == 0)
 	{
 		touch(*target, command[1]);
 		return 1;
-	}
-	else if (strcmp(command[0], "mkdir") == 0)
+	} else if (strcmp(command[0], "mkdir") == 0)
 	{
 		mkdir(*target, command[1]);
 		return 2;
-	}
-	else if (strcmp(command[0], "ls") == 0)
+	} else if (strcmp(command[0], "ls") == 0)
 	{
 		ls(*target);
 		return 3;
-	}
-	else if (strcmp(command[0], "rmdir") == 0)
+	} else if (strcmp(command[0], "rmdir") == 0)
 	{
 		rmdir(*target, command[1]);
 		return 5;
-	}
-	else if (strcmp(command[0], "rm") == 0)
+	} else if (strcmp(command[0], "rm") == 0)
 	{
 		rm(*target, command[1]);
 		return 4;
-	}
-	else if (strcmp(command[0], "cd") == 0)
+	} else if (strcmp(command[0], "cd") == 0)
 	{
 		cd(target, command[1]);
 		return 6;
-	}
-	else if (strcmp(command[0], "tree") == 0)
+	} else if (strcmp(command[0], "tree") == 0)
 	{
 		tree(*target, 0);
 		return 7;
-	}
-	else if (strcmp(command[0], "pwd") == 0)
+	} else if (strcmp(command[0], "pwd") == 0)
 	{
-		char* path;
+		char *path;
+
 		path = pwd(*target);
 		printf("%s\n", path);
 		free(path);
 		return 8;
-	}
-	else if (strcmp(command[0], "stop") == 0)
+	} else if (strcmp(command[0], "stop") == 0)
 	{
-		while((*target)->parent)
+		while ((*target)->parent)
 			*target = (*target)->parent;
 		stop(*target);
 		return 0;
-	}
-	else if (strcmp(command[0], "mv") == 0)
+	} else if (strcmp(command[0], "mv") == 0)
 	{
 		mv(*target, command[1], command[2]);
 		return 9;
-	}
-	else
+	} else
 	{
 		return -1;
 	}
@@ -440,14 +441,15 @@ int main(void)
 {
 	int i, argC = 0, signal = 0;
     char *command[4];
-	Dir* root = init_dir(NULL, "home");
+	Dir *root = init_dir(NULL, "home");
+
 	for (i = 0; i < 4; i++)
 		command[i] = malloc(50);
 	do
 	{
 		get_command(command, &argC);
 		signal = process_command(command, &root);
-	}while(signal != 0);
+	} while (signal != 0);
 	for (i = 0; i < 4; i++)
 		free(command[i]);
 	return 0;
